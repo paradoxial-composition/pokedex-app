@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, FlatList, StyleSheet } from 'react-native';
+import { View, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
 import { getAllPokemon } from '../../api/api';
 import CardContainer from '../components/Card/CardContainer';
 import Loader from '../components/Loader/Loader';
@@ -15,22 +15,34 @@ interface PokeListProps {
 const PokeList: React.FC<PokeListProps> = ({ navigation }) => {
   const [pokeList, setPokeList] = useState<PokemonItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
+  const [nextUrl, setNextUrl] = useState<string | null>(null);
 
-  const handleRedirection = (screen: string, pokemon: Pokemon = {} as Pokemon) => {
+  const handleRedirection = (screen: string, pokemon: Pokemon) => {
     navigation.navigate(screen, { data: pokemon });
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await getAllPokemon();
-        setPokeList(response.results as PokemonItem[]);
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error fetching Pokémon list:', error);
-      }
-    };
+  const fetchData = async (url: string = 'https://pokeapi.co/api/v2/pokemon/') => {
+    try {
+      const response = await getAllPokemon(url);
+      setPokeList((prevList) => [...prevList, ...response.results]);
+      setNextUrl(response.next);
+      setIsLoading(false);
+      setIsFetchingMore(false);
+    } catch (error) {
+      console.error('Error fetching Pokémon list:', error);
+    }
+  };
 
+  const fetchMoreData = async () => {
+    if (!nextUrl || isFetchingMore) return;
+
+    setIsFetchingMore(true);
+    await fetchData(nextUrl as string);
+  };
+
+  useEffect(() => {
+    // Initial data fetch
     fetchData();
   }, []);
 
@@ -43,9 +55,17 @@ const PokeList: React.FC<PokeListProps> = ({ navigation }) => {
           contentContainerStyle={[tw`my-5`]}
           data={pokeList}
           keyExtractor={(pokemon: PokemonItem) => pokemon.name}
-          renderItem={({ item }: {item: PokemonItem}) => (
+          renderItem={({ item }: { item: PokemonItem }) => (
             <CardContainer pokemon={item} handleRedirection={handleRedirection} />
           )}
+          onEndReached={fetchMoreData}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={
+            isFetchingMore ? (
+              // <ActivityIndicator size="large" color="#0000ff" />
+              <Loader />
+            ) : null
+          }
         />
       )}
     </View>
