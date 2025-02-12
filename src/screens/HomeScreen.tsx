@@ -3,18 +3,24 @@ import { Text, StyleSheet, TouchableOpacity, View } from "react-native";
 import tw from "twrnc";
 import SearchScreen from "./SearchScreen";
 import Separator from '../components/Separator/Separator';
+//import { StackNavigationProp } from 'react-navigation-stack';
+import { RootStackParamList } from '../types';
 
-const HomeScreen = ({navigation}) => {
-  return  (
+// Define the props for the HomeScreen component
+interface HomeScreenProps {
+  navigation: any, //StackNavigationProp<RootStackParamList, 'Home'>;
+}
+
+const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+  return (
     <View style={[tw`w-full h-1/2 flex justify-center items-center`]}>
-      <SearchScreen navigation={navigation}/>
+      <SearchScreen navigation={navigation} />
       <Separator />
-      <TouchableOpacity onPress={() => navigation.navigate('PokeList') }>
+      <TouchableOpacity onPress={() => navigation.navigate('PokeList')}>
         <Text style={[tw`shadow-2xl my-5`, styles.text]}>Go to pokedex</Text>
       </TouchableOpacity>
     </View>
-  )
-  
+  );
 };
 
 const styles = StyleSheet.create({

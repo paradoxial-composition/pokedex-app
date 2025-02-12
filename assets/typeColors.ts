@@ -1,4 +1,6 @@
-const colours = {
+export type PokemonType = 'normal' | 'fire' | 'water' | 'electric' | 'grass' | 'ice' | 'fighting' | 'poison' | 'ground' | 'flying' | 'psychic' | 'bug' | 'rock' | 'ghost' | 'dragon' | 'dark' | 'steel' | 'fairy';
+
+export const colors: Record<PokemonType, string> = {
 	normal: '#A8A77A',
 	fire: '#EE8130',
 	water: '#6390F0',
@@ -17,7 +19,4 @@ const colours = {
 	dark: '#705746',
 	steel: '#B7B7CE',
 	fairy: '#D685AD',
-};
-
-module.exports = type => colours[type] || '#777';
-module.exports.colors = colours;
+}
